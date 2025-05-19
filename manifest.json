@@ -3,6 +3,7 @@
   "short_name": "BrushCmdr Beta",
   "description": "Your Procreate Brush Companion - Beta.",
   "start_url": "./index.html",
+  "scope": "/brushcmdr/",
   "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#0095ff",
