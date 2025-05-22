@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brush-commander-v1.0.3'; // Incremented version due to CDN change
+const CACHE_NAME = 'brush-commander-v1.0.4'; // Incremented version due to CDN change
 const CORE_ASSETS = [
     './',
     './index.html',
