@@ -1,0 +1,8 @@
+# OS junk
+.DS_Store
+Thumbs.db
+#Future Tooling
+node_modules/
+*.log
+# Build Artifacts
+dist/
