@@ -1,29 +1,30 @@
 // --- DATABASE SETUP (Dexie.js) ---
 const db = new Dexie("ProcreateBrushManagerDB");
 
-// Corrected schema: removed the dangling comma after dateAdded and before isFavorite
+// V8 Schema: Added authorName index for creator filtering and display.
+db.version(8).stores({
+    brushes: `++internalId, [uuid+sourceFileName], uuid, name, dateAdded, isFavorite, thumbnailBlob, sourceFileName, isFromSet, setName, *tags, notes, brushArchiveBlob, shapeBlob, grainBlob, authorName`,
+    userCollections: `++id, name, dateCreated, *brushInternalIds`
+});
+
+// V7 Schema (Previous): Kept for reference of the upgrade path.
 db.version(7).stores({
     brushes: `++internalId, [uuid+sourceFileName], uuid, name, dateAdded, isFavorite, thumbnailBlob, sourceFileName, isFromSet, setName, *tags, notes, brushArchiveBlob, shapeBlob, grainBlob`,
     userCollections: `++id, name, dateCreated, *brushInternalIds`
-}).upgrade(tx => {
-    console.log("Upgrading database schema for version 7. If 'category' index existed, it is now removed.");
-    // No explicit data migration needed for simply removing an unused, non-critical index.
-    // Dexie handles schema changes gracefully. If the 'category' field still exists on old records,
-    // it will just be plain data and no longer indexed.
 });
 
 
 // --- DATA MODELS / CONSTRUCTORS ---
-function BrushInfo(uuid, name, thumbnailBlob, sourceFileName, isFromSet = false, setName = null) {
+function BrushInfo(uuid, name, thumbnailBlob, sourceFileName, isFromSet = false, setName = null, authorName = "Unknown") {
     this.uuid = uuid || `brush_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.name = name || "Untitled Brush";
     this.dateAdded = new Date();
-    // this.category = ""; // Field removed
     this.isFavorite = false;
     this.thumbnailBlob = thumbnailBlob;
     this.sourceFileName = sourceFileName;
     this.isFromSet = isFromSet;
     this.setName = setName;
+    this.authorName = authorName;
     this.tags = [];
     this.notes = "";
     this.brushArchiveBlob = null;
@@ -31,7 +32,7 @@ function BrushInfo(uuid, name, thumbnailBlob, sourceFileName, isFromSet = false,
     this.grainBlob = null;
 }
 
-function UserCollectionInfo(name) { // Kept for data continuity
+function UserCollectionInfo(name) {
     this.name = name;
     this.brushInternalIds = [];
     this.dateCreated = new Date();
@@ -41,7 +42,6 @@ function UserCollectionInfo(name) { // Kept for data continuity
 async function saveBrushToDB(brushData) {
     try {
         if (!brushData.dateAdded) brushData.dateAdded = new Date();
-        // delete brushData.category; // Ensure category is not present if old data model is used
         const existing = await db.brushes.where({ uuid: brushData.uuid, sourceFileName: brushData.sourceFileName }).first();
         if (existing) {
             console.log(`Brush "${brushData.name}" (UUID: ${brushData.uuid}) from "${brushData.sourceFileName}" already in DB. Skipping.`);
@@ -50,7 +50,7 @@ async function saveBrushToDB(brushData) {
         return await db.brushes.add(brushData);
     } catch (error) {
         console.error("Error saving brush:", brushData.name, error);
-        if (updateStatus) { // Check if updateStatus is defined
+        if (updateStatus) {
             updateStatus(`Error saving brush "${brushData.name}" to DB. Possible duplicate or other issue.`, true);
         }
         return null;
@@ -61,11 +61,27 @@ async function loadBrushesFromDBAndRender() {
     try {
         const searchTerm = (searchInput && searchInput.value || mobileSearchInput && mobileSearchInput.value || '').toLowerCase().trim();
         const favoritesOnly = currentViewMode === 'favorites';
-        let allBrushesInDB = await db.brushes.toArray();
+        
+        let query = db.brushes;
 
-        let filteredBrushes = allBrushesInDB.filter(brush => {
+        if (activeTagFilter.size > 0) {
+            const tags = Array.from(activeTagFilter);
+            if (tags.includes('UNTAGGED_FILTER')) {
+                query = query.filter(brush => !brush.tags || brush.tags.length === 0);
+            } else {
+                query = query.filter(brush => {
+                    const brushTags = brush.tags || [];
+                    return tags.every(filterTag => brushTags.includes(filterTag));
+                });
+            }
+        }
+
+        let filteredBrushes = await query.toArray();
+
+        filteredBrushes = filteredBrushes.filter(brush => {
             let matchesSearch = !searchTerm || (
                 (brush.name && brush.name.toLowerCase().includes(searchTerm)) ||
+                (brush.authorName && brush.authorName.toLowerCase().includes(searchTerm)) ||
                 (brush.setName && brush.setName.toLowerCase().includes(searchTerm)) ||
                 (brush.sourceFileName && brush.sourceFileName.toLowerCase().includes(searchTerm)) ||
                 (brush.uuid && brush.uuid.toLowerCase().includes(searchTerm)) ||
@@ -74,23 +90,14 @@ async function loadBrushesFromDBAndRender() {
 
             let matchesFavorite = !favoritesOnly || brush.isFavorite;
             let matchesBrushSet = !activeBrushSetFilter || (brush.isFromSet && brush.setName === activeBrushSetFilter);
-            let matchesTag = true;
-            if (activeTagFilter) {
-                if (activeTagFilter === 'UNTAGGED_FILTER') {
-                    matchesTag = (!brush.tags || brush.tags.length === 0);
-                } else {
-                    matchesTag = brush.tags && brush.tags.includes(activeTagFilter);
-                }
-            }
 
-            if (currentViewMode === 'favorites') return matchesFavorite && matchesSearch && matchesBrushSet && matchesTag;
-            if (currentViewMode === 'set') return matchesBrushSet && matchesSearch && matchesFavorite && matchesTag;
-            if (currentViewMode === 'tag') return matchesTag && matchesSearch && matchesFavorite && matchesBrushSet;
-
-            return matchesSearch && matchesFavorite && matchesBrushSet && matchesTag;
+            if (currentViewMode === 'favorites') return matchesFavorite && matchesSearch && matchesBrushSet;
+            if (currentViewMode === 'set') return matchesBrushSet && matchesSearch && matchesFavorite;
+            
+            return matchesSearch && matchesFavorite && matchesBrushSet;
         });
 
-        const currentSort = sortSelect ? sortSelect.value : 'name_asc'; // Handle if sortSelect not ready
+        const currentSort = sortSelect ? sortSelect.value : 'name_asc';
         filteredBrushes.sort((a, b) => {
             switch (currentSort) {
                 case 'name_asc': return a.name.localeCompare(b.name);
@@ -110,22 +117,30 @@ async function loadBrushesFromDBAndRender() {
         });
 
         currentlyRenderedBrushes = filteredBrushes;
-        updateMainContentTitle(filteredBrushes.length);
+        
         renderBrushLibrary(filteredBrushes);
         updateSelectedBrushActionsPanelContent();
 
+        // The following functions dynamically create the sidebar links.
         await populateBrushSetsSidebar();
         await populateTagsSidebar();
+        
+        // ** THE FINAL FIX **
+        // After the links are created, we MUST call updateActiveSidebarLink again
+        // to apply the highlight based on the current state.
+        updateActiveSidebarLink();
+        updateMainContentTitle(filteredBrushes.length);
         updateSelectDeselectAllButtonsState();
 
     } catch (error) {
         console.error("Error loading brushes:", error);
-        if (updateStatus) { // Check if updateStatus is defined
+        if (updateStatus) {
             updateStatus("Error loading brushes from the database.", true);
         }
         currentlyRenderedBrushes = [];
         await populateBrushSetsSidebar();
         await populateTagsSidebar();
+        updateActiveSidebarLink(); // Also call on error to reset UI
         updateSelectDeselectAllButtonsState();
     }
 }

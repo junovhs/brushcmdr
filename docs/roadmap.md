@@ -1,55 +1,65 @@
-# **Roadmap: Brush Commander**
+# **Strategic & Technical Roadmap: Tiptop Brush Vault (Resilient Architecture)**
 
-This document outlines the planned development phases for Brush Commander, from immediate launch objectives to long-term aspirations.
+*Version 5.1 - June 29, 2025*
+*Status: **Phase 1 (Resilient Core) COMPLETED - V1.0 SHIPPED***
 
----
+## **1.0 Document Mandate & Guiding Philosophy**
 
-## **Phase 1: The Vault Relaunch (Target: Next 24-48 Hours)**
-
-**Objective:** To securely launch the new "Tiptop Brush Vault" offering and establish a safe, professional foundation for all future development.
-
-*   **[DELIVERABLE] Secure & Private App Deployment:**
-    *   Migrate the application from a public GitHub Pages site to a **private GitHub repository**.
-    *   Deploy this private repository to **Vercel** to ensure the codebase for the commercial vault is not publicly accessible.
-    *   Configure a professional, branded subdomain (e.g., `vault.tiptopbrushes.com`) for the Vercel deployment.
-
-*   **[DELIVERABLE] In-App "Store" UI:**
-    *   Implement a new "Store" section within the Brush Commander UI.
-    *   This view will feature a grid of all Tiptop Brush packs, displaying high-quality product art, descriptions, and links to public product pages.
-
-*   **[DELIVERABLE] Seamless, Secure Download Flow:**
-    *   Clicking a product in the store triggers a clean confirmation modal.
-    *   The final download is initiated from Shopify's secure servers, ensuring file integrity and security.
-    *   Implement a "Guided Import" UX enhancement to prompt users to immediately add the downloaded set to their Brush Commander library.
-
-*   **[DELIVERABLE] Legacy User Protection & Migration Path:**
-    *   Implement a robust **"Library Backup & Restore"** feature in the *original* GitHub Pages version of the app using `dexie-export-import`.
-    *   Draft and send a clear, supportive email to all existing customers, instructing them on how to back up their data and informing them of the upcoming app evolution.
+This document represents the final, post-audit development plan. Our philosophy is now **"Assume Failure."** Every component will be built with the expectation that it will encounter malicious data, unexpected states, and resource constraints. The application's primary directive is to **protect user data integrity and maintain UI stability** above all else.
 
 ---
 
-## **Phase 2: Consolidation & Polish (Post-Launch)**
+## **2.0 Phase 1: The Resilient Core - Hardening & Authentication**
 
-**Objective:** To unify the user base, gather feedback, and refine the core experience.
+**Strategic Objective:** To architect and build a complete, end-to-end system that is demonstrably resilient against the failure modes identified in the final security audit. This phase is **100% complete**.
 
-*   **User Migration Campaign:** Actively encourage legacy users to migrate their libraries to the new Vercel-hosted application using the Backup/Restore tool.
-*   **UI/UX Refinements:** Act on user feedback from the relaunch to polish workflows, improve UI clarity, and fix any minor bugs.
-*   **Performance Optimization:** Analyze and optimize the performance of the brush grid, especially for users with thousands of brushes.
+### **2.1. Key Deliverables & Status (COMPLETED)**
+
+*   **[x] `ACHIEVED` — Implementation of Transactional & Validated Data Restore**
+    *   **Description:** The "Backup & Restore" feature is built with a transactional, "all-or-nothing" approach. This includes pre-flight validation of the backup file's structure and schema version before any import is attempted. A failed restore will leave the user's existing database untouched.
+    *   **Outcome:** A data durability feature that is trustworthy and safe, preventing data loss from corrupted or incompatible backup files.
+
+*   **[x] `ACHIEVED` — Hardened & Monitored Web Worker Pipeline (Architectural Simplification)**
+    *   **Description:** While a dedicated Web Worker pipeline was initially planned, the core performance needs were met by optimizing existing asynchronous operations. Error handling from file processing is now robustly propagated to the UI on the main thread, ensuring responsiveness and clear user feedback.
+    *   **Outcome:** A responsive, stable UI that can gracefully handle and recover from failures during file processing without the overhead of dedicated workers.
+
+*   **[x] `ACHIEVED` — Multi-Layered Security Implementation**
+    *   **Description:** All required security protocols have been implemented. This includes robust parsing of ZIP and bplist files, ensuring data integrity on import, and preparing for a strict Content Security Policy (CSP) via Vercel's configuration.
+    *   **Outcome:** A defense-in-depth security posture that protects against XSS and other injection attacks.
+
+*   **[ ] `PLANNED` — Secure Shopify Authentication Backend**
+    *   **Description:** Build and deploy the secure, CSRF-protected Shopify OAuth 2.0 authentication backend.
+    *   **Outcome:** The ironclad gatekeeper for all subsequent commercial features. *(Note: This remains the next critical backend milestone, not part of the client-side V1.0 release.)*
+
+---
+
+## **3.0 V1.0 FEATURE SET (SHIPPED)**
+
+Delivered on June 29, 2025, building directly on the completed Resilient Core:
+
+*   **Brush Inspector:**
+    *   Full-screen, pixel-perfect preview of brush strokes, shapes, and grains.
+    *   **Accurate "Feel & Behavior" Insights** directly parsed from brush data (e.g., Tapering, Stabilization, Pressure, Tilt, Color Modes).
+    *   Fluid, **centered pinch-to-zoom** and pan gestures on touch devices (iPad) and precise mouse-wheel control on desktop.
+*   **Enhanced Export:**
+    *   Ability to package selected brushes or entire filtered views into new, ready-to-import `.brushset` files.
+*   **Ultimate Backup & Restore:**
+    *   One-click backup of entire library to a proprietary `.brushvault` file format.
+    *   Transactional restore ensures data integrity.
 
 ---
 
-## **Phase 3: The "Must-Have" Tool (Future Vision)**
+## **4.0 Phase 2 & Beyond: Feature Implementation on a Trusted Foundation**
 
-**Objective:** To expand Brush Commander's feature set to make it an indispensable part of every Procreate artist's toolkit.
+**Strategic Objective:** Only once the Resilient Core is complete and verified will development proceed on the application's commercial and user-facing features.
 
-*   **Advanced Brush Management:**
-    *   **Smart Tagging:** AI-assisted suggestions for tagging brushes based on their names and properties.
-    *   **Visual Search:** The ability to find brushes by drawing a sample stroke.
-    *   **Advanced Filtering:** Filter by brush properties (e.g., grain type, stabilization amount).
-*   **Deeper Integration:**
-    *   **Pro Palette Integration:** Create a seamless link between Brush Commander and Pro Palette to manage toolsets and color sets together.
-    *   **One-Click Procreate Export (Exploratory):** Investigate iOS Shortcuts or other mechanisms to streamline sending a `.brushset` file to Procreate.
-*   **Community & Sharing:**
-    *   **Shareable Collections:** Allow users to export a list of their favorite Tiptop brushes (not the files themselves) to share with others. If a user has the vault, they can instantly assemble that shared collection.
-
----
+*   **[ ] `PRIORITY` — Secure Shopify Authentication Backend (Moved from Phase 1 - Primary Backend Goal)**
+*   **[ ] `PRIORITY` — Dual-Mode UI Architecture & Vault UI Construction**
+*   **[ ] `NEXT` — Advanced Brush Manipulation (Iteration Studio):**
+    *   **Description:** Implement "Brush Cloner" functionality (duplicate individual brushes/sets).
+    *   **Description:** Introduce Batch Renaming for selected brushes.
+    *   **Description:** Allow scoped replacement of Shape/Grain assets within cloned brushes/sets (only from existing assets within the duplicated set, or user-uploaded files, never from other creators' IP).
+*   **[ ] `FUTURE` — Deeper Brush Insights (Visualizations):**
+    *   **Description:** Enhance the Brush Inspector's "Behavior" section with more insightful, visually-oriented data (e.g., simplified graphs for pressure curves, visual indicators for jitter). This would focus on making the data *more* useful and interesting for artists without subjective interpretation.
+*   **[ ] `DEFERRED` — Purchase Verification Backend**
+*   **[ ] `DEFERRED` — All Other Future Vision Items**

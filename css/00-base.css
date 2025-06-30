@@ -1,0 +1,57 @@
+/* Basic Reset & Root Variables */
+:root {
+    --primary-bg: #1e1e1e; /* Very dark grey, almost black */
+    --secondary-bg: #2e2e2e; /* Dark grey for elements */
+    --tertiary-bg: #3c3c3c; /* Slightly lighter grey for cards, inputs */
+    --primary-text: #e0e0e0; /* Light grey for text */
+    --secondary-text: #b0b0b0; /* Dimmer text */
+    --accent-color: #0095ff; /* Bright blue for accents */
+    --accent-hover: #007acc;
+    --accent-selected-bg: rgba(0, 149, 255, 0.1); /* Subtle blue for selected card bg */
+    --danger-color: #f44336;
+    --danger-hover: #d32f2f;
+    --border-color: #4a4a4a;
+    --card-border-color: #555;
+    --font-family: 'Roboto', sans-serif;
+    --card-aspect-ratio: 16/9; /* For brush previews */
+    --right-panel-width: 320px;
+    --sidebar-width: 260px;
+    --header-height: 50px; /* Approximate header height */
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: 16px;
+    line-height: 1.5;
+    height: 100%;
+    display: flex;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--primary-bg); border-radius: 5px; }
+::-webkit-scrollbar-thumb { background-color: var(--tertiary-bg); border-radius: 5px; border: 2px solid var(--primary-bg); }
+::-webkit-scrollbar-thumb:hover { background-color: #555; }
+
+.sidebar, .brush-library-container, #selectedBrushActionsPanelContainer,
+#selectedBrushActionsPanel #brushArchiveInsights pre, .mobile-sort-options,
+.help-modal-content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tertiary-bg) var(--primary-bg);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+}

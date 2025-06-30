@@ -1,0 +1,237 @@
+/* ----- Responsive Styles ----- */
+
+/* Desktop First - Default is 3-column. Breakpoints adjust for smaller screens. */
+@media (min-width: 641px) {
+    .mobile-nav-toggle,
+    .header-actions-mobile,
+    .mobile-search-bar,
+    #mobileSortOptions {
+        display: none !important;
+    }
+}
+
+
+/* Tablet Landscape & Large Tablets Portrait */
+@media (max-width: 1180px) {
+    .main-content {
+        flex-direction: column;
+    }
+    #selectedBrushActionsPanelContainer {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        max-height: 40vh;
+        display: block !important;
+    }
+    #output.brush-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+    .content-actions input[type="search"] { min-width: clamp(150px, 25vw, 200px); }
+    .page-controls { text-align: center; }
+    .page-controls .button-style { margin: 5px; }
+}
+
+
+/* Smaller Tablets */
+@media (max-width: 768px) {
+    :root { --sidebar-width: 220px; }
+     #selectedBrushActionsPanelContainer {
+        max-height: 35vh;
+    }
+    #output.brush-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        padding: 15px;
+    }
+    .brush-card { min-height: 165px; }
+    #mainContentTitleAppHeader { font-size: 1em; } /* Adjust title size */
+    .app-header { padding: 0 10px; }
+}
+
+
+/* Mobile Phones (Portrait & Landscape) */
+@media (max-width: 640px) {
+    :root { --sidebar-width: 240px; }
+
+    .app-header {
+        z-index: 301;
+        padding: 0 10px;
+    }
+    .app-header .logo { display: none; }
+    .app-header-title-container { display: none; }
+    .header-center { display: none !important; } /* Hide desktop actions */
+
+
+    .app-header .mobile-nav-toggle { display: block; }
+    .header-actions-mobile { display: flex; align-items: center; margin-left: auto; }
+    .header-actions-mobile .mobile-search-toggle { display: block; }
+    .header-actions-mobile .mobile-sort-toggle { display: block; margin-left:10px;}
+    .header-actions-mobile .header-help-toggle { display: block; margin-left:10px; font-size: 1.5em;}
+    .header-right .header-tools-desktop { display: none; }
+
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: var(--header-height);
+        height: calc(100% - var(--header-height));
+        transform: translateX(-100%);
+        z-index: 300;
+        border-right: 1px solid var(--border-color);
+        will-change: transform;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    }
+    .page-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 250;
+    }
+    .page-overlay.active { display: block; }
+
+    .content-column-wrapper {
+        width: 100%;
+    }
+    
+    .mobile-search-bar { display: none; }
+     .mobile-search-bar.active { display: block; }
+
+
+    #mobileSortOptions {
+        display: none;
+        position: absolute;
+        top: var(--header-height);
+        right: 10px;
+        background-color: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 10px;
+        z-index: 350;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    #mobileSortOptions.active { display: block !important; }
+
+    #mobileSortOptions button {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        color: var(--primary-text);
+        padding: 8px 10px;
+        text-align: left;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    #mobileSortOptions button:hover {
+        background-color: var(--tertiary-bg);
+    }
+     #mobileSortOptions button.active-sort {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    
+    #selectedBrushActionsPanelContainer { display: none !important; }
+    
+    #output.brush-grid {
+        grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+        gap: 8px;
+        padding: 10px;
+    }
+    .brush-card {
+        min-height: 130px;
+        padding: 6px;
+    }
+    .brush-preview-wrapper {
+        margin-bottom: 6px;
+    }
+    .brush-card-info {
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+    }
+    .brush-card-info .name {
+        font-size: 0.75em;
+        line-height: 1.1;
+        -webkit-line-clamp: 2;
+        white-space: normal;
+    }
+    .brush-card-actions {
+        gap: 4px;
+        padding-top: 4px;
+    }
+    .brush-card-actions .icon-button {
+        font-size: 0.9em;
+        padding: 3px;
+    }
+    .brush-card .from-set,
+    .brush-card .notes-preview,
+    .brush-card .brush-tags-display-card,
+    .brush-card-info .author-name {
+        display: none !important;
+    }
+    
+    .brush-library-container {
+        padding-bottom: 20px;
+    }
+    .sidebar-footer-logo {
+        padding: 10px 15px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .sidebar-footer-logo img {
+        width: 150px;
+    }
+
+     .help-modal-content {
+        padding: 20px;
+        max-height: 90vh;
+    }
+    
+    /* Responsive Inspector */
+    @media (max-width: 900px) {
+        .inspector-overlay { padding: 10px; }
+        .inspector-main-content {
+            flex-direction: column;
+            max-height: none;
+            height: 100%;
+            gap: 10px;
+        }
+        .spec-panel {
+            min-width: 0;
+            flex-basis: 40%;
+            flex-shrink: 0;
+            padding: 15px;
+        }
+        #inspector-brush-name {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        .dna-previews {
+            margin-bottom: 15px;
+        }
+        
+        .inspector-close-btn {
+            top: 15px; 
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            font-size: 20px;
+        }
+
+        .inspector-nav-btn {
+            width: 44px;
+            height: 44px;
+            font-size: 28px;
+            top: calc(60% - 50px);
+            transform: translateY(-50%);
+        }
+        .prev-btn { left: 15px; }
+        .next-btn { right: 15px; }
+    }
+}

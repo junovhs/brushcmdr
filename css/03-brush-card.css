@@ -1,0 +1,162 @@
+/* --- Brush Grid and Card Styles --- */
+
+#output.brush-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    align-content: flex-start;
+}
+
+#output .status-message, #output .info-text {
+    grid-column: 1 / -1;
+    background-color: var(--tertiary-bg);
+    padding: 15px;
+    border-radius: 5px;
+    color: var(--secondary-text);
+    margin: 0;
+}
+#output .status-message .info-label { color: var(--primary-text); font-weight: bold;}
+#output .error-message { background-color: var(--danger-color) !important; color: white !important;}
+
+
+/* --- Enhanced Brush Card Styling (No Shine) --- */
+.brush-card {
+    background-color: var(--tertiary-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: 
+        border-color 0.25s ease, 
+        background-color 0.25s ease,
+        transform 0.25s ease-in-out,
+        box-shadow 0.25s ease-in-out;
+}
+
+.brush-card.selected {
+    border-color: var(--accent-color);
+    background-color: var(--accent-selected-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4), 0 0 0 2px var(--accent-color);
+}
+
+.brush-card input[type="checkbox"].item-checkbox {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    z-index: 10;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.brush-preview-wrapper {
+    width: 100%;
+    aspect-ratio: var(--card-aspect-ratio);
+    background-color: #222;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: linear-gradient(45deg, #2a2a2a 25%, transparent 25%, transparent 75%, #2a2a2a 75%, #2a2a2a), linear-gradient(45deg, #2a2a2a 25%, transparent 25%, transparent 75%, #2a2a2a 75%, #2a2a2a);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+}
+
+.brush-preview-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.brush-card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.brush-card-info .name {
+    font-weight: 500;
+    color: var(--primary-text);
+    margin-bottom: 4px;
+    font-size: 1em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.brush-card-info .favorite-star { color: gold; margin-left: 5px; font-size:0.9em;}
+
+
+.brush-card-info .from-set,
+.brush-card-info .author-name,
+.brush-card-info .notes-preview {
+    font-size: 0.8em;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.brush-card-info .notes-preview.no-notes {
+    font-style: italic;
+}
+.brush-card-info .from-set.mobile-hidden,
+.brush-card-info .notes-preview.mobile-hidden,
+.brush-tags-display-card.mobile-hidden {
+    display: none;
+}
+
+.brush-tags-display-card {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+.brush-tags-display-card .tag {
+    background-color: #555;
+    color: var(--primary-text);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.brush-card-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.brush-card-actions .icon-button {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.1em;
+}
+.brush-card-actions .icon-button:hover {
+    color: var(--primary-text);
+}
+.brush-card-actions .icon-button.favorite-icon.is-favorite {
+    color: gold;
+}

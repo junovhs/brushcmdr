@@ -1,22 +1,41 @@
-const CACHE_NAME = 'brush-commander-v1.0.4'; // Incremented version due to CDN change
+// ===== START OF FILE: brushvault/sw.js ===== //
+const CACHE_NAME = 'brush-commander-v1.0.5'; // Incremented version to force update
 const CORE_ASSETS = [
     './',
     './index.html',
     './css/style.css',
-    './js/main.js',
-    './js/db.js',
-    './js/ui.js',
-    './js/bplistParserManual.js',
-    './js/fileHandlers.js',
-    './js/eventHandlers.js',
-    './js/domElements.js',
-    './js/config.js',
-    './js/pwa.js',
+    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
+
+    // Core Libraries
     'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
     'https://unpkg.com/dexie@3.2.4/dist/dexie.min.js',
-    // Switched to jsDelivr CDN for dexie-export-import
-    'https://cdn.jsdelivr.net/npm/dexie-export-import@1.0.3/dist/dexie-export-import.min.js',
-    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
+    'https://cdn.jsdelivr.net/npm/streamsaver@2.0.6/StreamSaver.min.js',
+
+    // App Logic Scripts
+    './js/config.js',
+    './js/domElements.js',
+    './js/bplistParserManual.js',
+    './js/db.js',
+    './js/fileHandlers.js',
+    './js/pwa.js',
+    './js/main.js',
+
+    // UI Scripts
+    './js/ui/rendering.js',
+    './js/ui/panels.js',
+    './js/ui/mobileToggles.js',
+    './js/ui/main.js', // This is also a UI script, so including it is fine
+
+    // Handler Scripts
+    './js/handlers/selectionHandlers.js',
+    './js/handlers/brushActionHandlers.js',
+    './js/handlers/navigationHandlers.js',
+    './js/handlers/dataHandlers.js',
+    './js/handlers/mobileActionHandlers.js',
+    './js/handlers/systemHandlers.js',
+
+    // Icons and Manifest
+    './manifest.json', // It's good practice to cache the manifest
     './icons/icon-192x192.png',
     './icons/icon-512x512.png',
     './icons/icon-maskable-192x192.png',
@@ -24,24 +43,30 @@ const CORE_ASSETS = [
     './icons/simplified_white512.png'
 ];
 
-const DYNAMIC_CACHE_NAME = 'brush-commander-dynamic-v1.0.3'; // Incremented version
+const DYNAMIC_CACHE_NAME = 'brush-commander-dynamic-v1.0.5'; // Incremented version
 
 self.addEventListener('install', event => {
     console.log('[Service Worker] Installing new version:', CACHE_NAME);
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            console.log('[Service Worker] Precaching core assets:', CORE_ASSETS);
-            const requests = CORE_ASSETS.map(url => {
-                return new Request(url, { cache: 'reload' });
-            });
-            return cache.addAll(requests)
-                .then(() => console.log('[Service Worker] All core assets precached successfully for version:', CACHE_NAME))
-                .catch(error => {
-                    console.error('[Service Worker] Failed to precache one or more core assets for version:', CACHE_NAME, error);
-                    // This error will cause the SW installation to fail if not caught.
-                });
+        caches.open(CACHE_NAME)
+        .then(cache => {
+            console.log('[Service Worker] Precaching core assets:', CORE_ASSETS.length, 'files');
+            // Using individual `add` calls can give more specific error messages if one fails
+            return Promise.all(
+                CORE_ASSETS.map(url => cache.add(new Request(url, {cache: 'reload'})).catch(err => {
+                    console.error(`[Service Worker] Failed to cache: ${url}`, err);
+                    // This allows the SW to install even if one optional resource (like a font) fails,
+                    // but it will fail if a critical JS file is missing.
+                }))
+            );
         })
-        .then(() => self.skipWaiting())
+        .then(() => {
+            console.log('[Service Worker] Core assets precached successfully.');
+            return self.skipWaiting();
+        })
+        .catch(error => {
+            console.error('[Service Worker] Core asset precaching failed:', error);
+        })
     );
 });
 
@@ -55,73 +80,46 @@ self.addEventListener('activate', event => {
                     return caches.delete(key);
                 }
             }));
-        })
+        }).then(() => self.clients.claim())
     );
-    return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-    const isCoreAssetRequest = CORE_ASSETS.some(assetUrl => {
-        // Handle cases where assetUrl might be a full CDN URL or a local path
-        if (event.request.url === assetUrl) return true;
-        if (assetUrl.startsWith('./') && event.request.url.endsWith(assetUrl.substring(1))) return true;
-        return false;
-    });
+    const url = new URL(event.request.url);
 
-    if (isCoreAssetRequest) {
+    // Always go to the network for fonts to get the most up-to-date stylesheet for the user's browser.
+    if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
         event.respondWith(
-            caches.match(event.request, { cacheName: CACHE_NAME }).then(cachedResponse => {
-                if (cachedResponse) {
-                    return cachedResponse;
+            caches.open(DYNAMIC_CACHE_NAME).then(async cache => {
+                try {
+                    const networkResponse = await fetch(event.request);
+                    cache.put(event.request, networkResponse.clone());
+                    return networkResponse;
+                } catch (err) {
+                    return await cache.match(event.request) || new Response(null, { status: 404 });
                 }
-                return fetch(event.request).then(fetchResponse => {
-                    if (fetchResponse.ok) {
-                        const clonedResponse = fetchResponse.clone();
-                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clonedResponse));
-                    }
-                    return fetchResponse;
-                }).catch(err => {
-                    console.error('[Service Worker] Fetch failed for core asset (and not in cache):', event.request.url, err);
-                });
             })
         );
         return;
     }
-
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            fetch(event.request)
-            .then(response => {
-                if (response.ok) {
-                    const clonedResponse = response.clone();
-                    caches.open(DYNAMIC_CACHE_NAME).then(cache => cache.put(event.request.url, clonedResponse));
+    
+    // For other requests, use a cache-first strategy.
+    event.respondWith(
+        caches.match(event.request).then(cachedResponse => {
+            // Return cached response if found
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            // Otherwise, fetch from network
+            return fetch(event.request).then(networkResponse => {
+                // If the fetch is successful, clone it and cache it for future use.
+                if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
+                    caches.open(DYNAMIC_CACHE_NAME).then(cache => {
+                        cache.put(event.request, networkResponse.clone());
+                    });
                 }
-                return response;
-            })
-            .catch(() => {
-                return caches.match(event.request, { cacheName: DYNAMIC_CACHE_NAME })
-                    .then(response => response || caches.match('./index.html', { cacheName: CACHE_NAME }));
-            })
-        );
-    } else {
-        event.respondWith(
-            caches.match(event.request, { cacheName: DYNAMIC_CACHE_NAME }).then(cachedResponse => {
-                return cachedResponse || fetch(event.request).then(fetchResponse => {
-                    if (fetchResponse.ok) {
-                        const clonedResponse = fetchResponse.clone();
-                        caches.open(DYNAMIC_CACHE_NAME).then(cache => cache.put(event.request, clonedResponse));
-                    }
-                    return fetchResponse;
-                }).catch(() => {
-                    // Optional: return a generic fallback for failed non-core assets
-                });
-            })
-        );
-    }
-});
-
-self.addEventListener('message', event => {
-    if (event.data && event.data.action === 'skipWaiting') {
-        self.skipWaiting();
-    }
+                return networkResponse;
+            });
+        })
+    );
 });

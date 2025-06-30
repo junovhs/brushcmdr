@@ -3,98 +3,73 @@
 <head>
     <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brush Commander Beta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Brush Commander V1</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0095ff">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
     <link rel="icon" href="icons/simplified_white512.png" type="image/png">
-    <link rel="stylesheet" href="css/style.css">
+    
+    <link rel="stylesheet" href="css/00-base.css">
+    <link rel="stylesheet" href="css/01-layout.css">
+    <link rel="stylesheet" href="css/02-components.css">
+    <link rel="stylesheet" href="css/03-brush-card.css">
+    <link rel="stylesheet" href="css/04-panels.css">
+    <link rel="stylesheet" href="css/05-responsive.css">
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
-    <style>
-        .icon-menu::before { content: "☰"; }
-        .icon-search::before { content: "🔍"; }
-        .icon-sort::before { content: "⇅"; }
-        .icon-edit::before { content: "✎"; }
-        .icon-tag::before { content: "🏷"; }
-        .icon-brushset::before { content: "🖌️"; }
-        .icon-delete::before { content: "🗑"; }
-        .icon-close::before { content: "✕"; }
-        .icon-select-all::before { content: "☑"; }
-        .icon-deselect-all::before { content: "☐";}
-        #installAppButton {
-            background-color: var(--accent-color); color: white; padding: 8px 12px; border: none; border-radius: 5px;
-            cursor: pointer; font-size: 0.85em; margin-left: 10px; display: none; vertical-align: middle;
-        }
-        #installAppButton:hover { background-color: var(--accent-hover); }
-        #demoModeBanner {
-            background-color: var(--accent-color); color: white; text-align: center; padding: 8px;
-            font-size: 0.9em; position: sticky; top: 0; z-index: 500;
-        }
-        #demoModeBanner a { color: white; font-weight: bold; text-decoration: underline; }
-        .sidebar { display: flex; flex-direction: column; }
-        .sidebar nav, .sidebar .sidebar-section { flex-shrink: 0; }
-        .sidebar-footer-actions { margin-top: 20px; }
-        @media (max-width: 640px) {
-            .content-header .button-style.mobile-header-action {
-                 display: inline-block; padding: 5px 8px; font-size: 1.2em;
-                 background: none; border: none; color: var(--primary-text);
-            }
-            .content-header .button-style.mobile-header-action .button-text { display: none; }
-            .content-header .content-actions { display: none !important; }
-            .mobile-title-actions { display: flex; align-items: center; margin-left: auto; }
-        }
-    </style>
 </head><body>
-    <!-- MODIFIED LINE: Added width: 100%; -->
+    <!-- Passcode Gate -->
     <div id="passcodeGate" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; width: 100%; background-color:#1e1e1e; color:#e0e0e0; font-family:Roboto,sans-serif;">
-        <h2>Brush Commander Beta Access</h2>
+        <h2>Brush Commander Access</h2>
         <p>Please enter your access code:</p>
         <input type="password" id="passcodeEntry" style="padding:10px; margin-bottom:10px; width:200px; border-radius: 4px; background-color: var(--tertiary-bg); border: 1px solid var(--border-color); color: var(--primary-text);">
         <button id="submitPasscode" style="padding:10px 20px; background-color: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer;">Enter</button>
         <p id="passcodeError" style="color:var(--danger-color); display:none; margin-top:10px;">Incorrect passcode.</p>
     </div>
 
-    <div id="appWrapper" style="display:none;">
+    <div id="appWrapper" style="display:none; flex-direction: column; width: 100%; height: 100%;">
         <div id="pageOverlay"></div>
-        <div id="demoModeBanner" style="display: none;">
-            This is a Beta version of Brush Commander. <a href="#" id="purchaseLink">Learn More!</a>
-        </div>
         <div class="app-container">
             <header class="app-header">
-                <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu">
-                    <span class="icon-menu"></span>
-                </button>
-                <div class="logo">Brush Commander <span style="font-size: 0.7em; color: var(--accent-color); vertical-align: super;">Beta</span></div>
-                <div class="app-header-title-container">
+                <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu">☰</button>
+                <div class="header-left">
+                    <div class="logo">Brush Commander <span class="logo-version">v1.0</span></div>
                     <h2 id="mainContentTitleAppHeader">Brushes</h2>
                 </div>
-                <div class="header-actions-desktop">
-                     <label for="fileInput" class="import-button button-style">Import Brushes</label>
-                     <button id="installAppButton">Install App</button>
-                     <button id="headerHelpToggle" class="header-help-toggle" aria-label="Help">
-                        <span class="icon-help"></span>
-                     </button>
+                <div class="header-center" id="desktopContentActions">
+                    <button id="selectAllButtonDesktop" class="button-style header-action-btn">Select All</button>
+                    <button id="deselectAllButtonDesktop" class="button-style header-action-btn">Deselect All</button>
+                    <label for="fileInput" class="import-button button-style header-action-btn">Import</label>
                 </div>
-                <div class="header-actions-mobile">
-                     <label for="fileInput" class="import-button button-style" style="padding: 5px 8px; font-size: 0.8em;">Import</label>
-                    <button class="mobile-search-toggle" id="mobileSearchToggle" aria-label="Search brushes">
-                        <span class="icon-search"></span>
-                    </button>
-                     <button class="mobile-sort-toggle" id="mobileSortToggle" aria-label="Sort brushes">
-                        <span class="icon-sort"></span>
-                    </button>
-                     <button id="mobileHeaderHelpToggle" class="header-help-toggle" aria-label="Help">
-                        <span class="icon-help"></span>
-                     </button>
+                <div class="header-right">
+                    <div class="header-tools-desktop">
+                        <input type="search" id="searchInput" placeholder="Search...">
+                        <select id="sortSelect">
+                            <option value="name_asc" selected>Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                            <option value="date_desc">Date (Newest)</option>
+                            <option value="date_asc">Date (Oldest)</option>
+                            <option value="set_asc">Set (A-Z)</option>
+                            <option value="set_desc">Set (Z-A)</option>
+                        </select>
+                        <button id="headerHelpToggle" class="header-help-toggle" aria-label="Help">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        </button>
+                    </div>
+                     <div class="header-actions-mobile">
+                        <label for="fileInput" class="import-button button-style" style="padding: 5px 8px; font-size: 0.8em;">Import</label>
+                        <button id="mobileSearchToggle" class="mobile-search-toggle" aria-label="Search brushes">🔍</button>
+                        <button id="mobileSortToggle" class="mobile-sort-toggle" aria-label="Sort brushes">⇅</button>
+                        <button id="mobileHeaderHelpToggle" class="header-help-toggle" aria-label="Help">❓</button>
+                    </div>
                 </div>
             </header>
-            <div class="mobile-search-bar" id="mobileSearchBar">
+            
+            <div id="mobileSearchBar" class="mobile-search-bar">
                 <input type="search" id="mobileSearchInput" placeholder="Search brushes...">
             </div>
-            <div class="mobile-sort-options" id="mobileSortOptions">
+            <div id="mobileSortOptions" class="mobile-sort-options">
                  <button data-sort="name_asc">Name (A-Z)</button>
                  <button data-sort="name_desc">Name (Z-A)</button>
                  <button data-sort="date_desc">Date Added (Newest)</button>
@@ -104,211 +79,195 @@
             </div>
             <div class="main-layout">
                 <aside class="sidebar" id="sidebar">
-                    <nav>
-                        <ul class="sidebar-menu">
-                            <li><a href="#" id="allBrushesLink" class="active-link">All Brushes</a></li>
-                            <li><a href="#" id="favoritesLink">Favorites</a></li>
-                        </ul>
-                    </nav>
-                    <div class="sidebar-section">
-                        <h4>Brush Sets</h4>
-                        <ul id="brushSetsList" class="sidebar-menu dynamic-list"></ul>
-                    </div>
-                    <div class="sidebar-section">
-                        <h4>Tags</h4>
-                        <ul id="tagsList" class="sidebar-menu dynamic-list">
-                             <li><a href="#" id="showUntaggedFilterLink">Untagged</a></li>
-                        </ul>
-                    </div>
-                    <div class="sidebar-section">
-                        <h4>Brush Backup & Safety</h4>
-                        <div class="sidebar-backup-info">
-                            <p><strong>Your Brushes in Brush Commander Beta:</strong></p>
-                            <p>When you import <code>.brush</code> or <code>.brushset</code> files, Brush Commander stores a copy of these brush assets. This means:</p>
-                            <ul>
-                                <li>You can organize, tag, and manage them here independently.</li>
-                                <li>If you accidentally delete brushes from Procreate, the copies in Brush Commander can serve as a valuable reference. You can re-export them as new <code>.brushset</code> files using the "Create .brushset" options.</li>
+                    <div class="sidebar-scroll-area">
+                        <nav>
+                            <ul class="sidebar-menu">
+                                <li><a href="#" id="allBrushesLink" class="active-link">All Brushes</a></li>
+                                <li><a href="#" id="favoritesLink">Favorites</a></li>
                             </ul>
-                            <p><strong>Important Recommendation:</strong></p>
-                            <p>For the most robust protection, it's highly recommended to also keep your original <code>.brush</code> and <code>.brushset</code> files backed up separately using a cloud service (like iCloud, Dropbox, Google Drive) or an external hard drive.</p>
+                        </nav>
+                        <div class="sidebar-section">
+                            <h4>Brush Sets</h4>
+                            <ul id="brushSetsList" class="sidebar-menu dynamic-list"></ul>
+                        </div>
+                        <div class="sidebar-section">
+                            <h4>Tags</h4>
+                            <ul id="tagsList" class="sidebar-menu dynamic-list"></ul>
                         </div>
                     </div>
-                    <div class="sidebar-footer-actions">
-                        <button id="clearDbButton" class="button-style danger-button" style="width:100%;">Clear Entire Library</button>
-                    </div>
-                    <div class="sidebar-footer-logo">
-                        <a href="https://tiptopbrushes.com/" target="_blank" rel="noopener noreferrer" title="Visit Tiptop Brushes">
-                            <img src="icons/simplified_white512.png" alt="Tiptop Brushes Logo">
-                        </a>
+                    <div class="sidebar-footer-group">
+                        <div class="sidebar-footer-actions">
+                            <button id="backupLibraryButton" class="button-style" style="width:100%; margin-bottom: 10px;">Backup Library</button>
+                            <label id="restoreLibraryLabel" for="restoreLibraryInput" class="button-style" style="width:100%; margin-bottom: 10px;">Restore Library</label>
+                            <hr style="border-color: var(--border-color); margin: 20px 0;">
+                            <button id="clearDbButton" class="button-style danger-button" style="width:100%;">Clear Entire Library</button>
+                        </div>
+                        <div class="sidebar-footer-logo">
+                            <a href="https://tiptopbrushes.com/" target="_blank" rel="noopener noreferrer" title="Visit Tiptop Brushes">
+                                <img src="icons/simplified_white512.png" alt="Tiptop Brushes Logo" style="width: 150px; opacity: 0.7;">
+                            </a>
+                        </div>
                     </div>
                 </aside>
                 <main class="main-content">
                     <div class="content-column-wrapper">
-                        <div class="content-header" id="contentHeader">
-                            <div class="content-actions" id="desktopContentActions">
-                                <input type="search" id="searchInput" placeholder="Search brushes...">
-                                <select id="sortSelect">
-                                    <option value="name_asc" selected>Name (A-Z)</option>
-                                    <option value="name_desc">Name (Z-A)</option>
-                                    <option value="date_desc">Date Added (Newest)</option>
-                                    <option value="date_asc">Date Added (Oldest)</option>
-                                    <option value="set_asc">Set Name (A-Z)</option>
-                                    <option value="set_desc">Set Name (Z-A)</option>
-                                </select>
-                            </div>
-                             <div class="mobile-title-actions"></div>
-                        </div>
                         <div class="brush-library-container">
-                            <div id="output" class="brush-grid">
-                                <p class="status-message"><span class="info-label">Status:</span> Initializing...</p>
-                            </div>
+                            <div id="output" class="brush-grid"></div>
                         </div>
-                         <div class="page-controls"></div>
                     </div>
                     <div id="selectedBrushActionsPanelContainer">
                         <div id="selectedBrushActionsPanel">
-                            <h3 id="panelHeader">Brush Details</h3>
+                            <h3 id="panelHeader">Brush Actions</h3>
                             <div id="singleBrushEditSection" style="display: none;">
-                                <div class="action-section">
-                                    <label for="brushNameInput">Name:</label>
-                                    <input type="text" id="brushNameInput">
-                                </div>
-                                <div class="action-section">
-                                     <input type="checkbox" id="brushIsFavoriteCheckbox" style="width: auto; margin-right: 8px; vertical-align: middle;">
-                                     <label for="brushIsFavoriteCheckbox">Favorite</label>
-                                </div>
-                                <div class="action-section">
-                                    <label for="brushNotesTextarea">Notes:</label>
-                                    <textarea id="brushNotesTextarea"></textarea>
-                                </div>
-                                 <button id="saveBrushDetailsButton" class="button-style accent-button">Save Details</button>
-                                <div class="action-section" id="brushArchiveInsights" style="margin-top: 15px;">
-                                    <label>Brush Archive Insights (Read-Only):</label>
-                                    <pre id="archiveInsightsContent">Select a brush to see insights...</pre>
-                                </div>
+                                <div class="action-section"><label for="brushNameInput">Name:</label><input type="text" id="brushNameInput"></div>
+                                <div class="action-section"><input type="checkbox" id="brushIsFavoriteCheckbox" style="vertical-align: middle; margin-right: 8px;"><label for="brushIsFavoriteCheckbox">Favorite</label></div>
+                                <div class="action-section"><label for="brushNotesTextarea">Notes:</label><textarea id="brushNotesTextarea"></textarea></div>
+                                <button id="saveBrushDetailsButton" class="button-style accent-button">Save Details</button>
                             </div>
-                            <div id="multipleBrushesActionSection" style="display: none;">
+                            <div id="multipleBrushesActionSection" style="display: block;">
                                 <div class="action-section">
                                     <label>Tags:</label>
                                     <div id="commonTagsDisplay"></div>
                                     <input type="text" id="tagsToAddInput" placeholder="Add tags, comma-separated">
                                     <button id="applyTagsButton" class="button-style">Apply Tags</button>
                                 </div>
-                                <div class="panel-buttons action-section">
-                                    <button id="createNewSetButton" class="button-style">Create .brushset from Selected</button>
-                                </div>
+                                <div class="panel-buttons action-section"><button id="createNewSetButton" class="button-style">Create .brushset</button></div>
+                            </div>
+                            <div class="panel-footer-actions">
+                               <button id="deleteSelectedButton" class="button-style danger-button" style="display:none;"></button>
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
         </div>
+
         <input type="file" id="fileInput" accept=".brushset,.brush" multiple style="display: none;">
-        <button id="deleteSelectedButtonFixed" class="button-style danger-button">Delete Selected</button>
-        <div id="mobileBottomActionBar">
-            <div class="actions-content">
-                <span id="mobileSelectedCount" class="selected-count">0 selected</span>
-                <button id="mobileTagButton" class="button-style"><span class="icon-tag"></span> Tag</button>
-                <button id="mobileCreateSetButton" class="button-style"><span class="icon-brushset"></span> Set</button>
-                <button id="mobileEditButton" class="button-style" style="display:none;"><span class="icon-edit"></span> Edit</button>
-                <button id="mobileDeleteButton" class="button-style danger-button"><span class="icon-delete"></span></button>
-            </div>
-        </div>
+        <input type="file" id="restoreLibraryInput" style="display: none;">
+
         <div id="helpModal" class="modal-overlay" style="display: none;">
             <div class="help-modal-content">
-                <button id="closeHelpModal" class="modal-close-button" aria-label="Close help">×</button>
-                <h3>Brush Commander Beta Help</h3>
-                <p>Welcome to Brush Commander Beta! Here are some basics to get you started:</p>
-                <h4>Importing Brushes</h4>
-                <p>Click the "Import Brushes" button in the header to import your <code>.brush</code> and <code>.brushset</code> files. Brush Commander stores a copy of these assets, allowing you to organize them here and re-export them as new <code>.brushset</code> files. This can be helpful if you need to restore them to Procreate.</p>
-                <h4>Selecting Brushes</h4>
-                <p>Click on a brush card to select it (it will highlight blue). To select multiple brushes, simply click on more cards. Your selection persists across different views (All Brushes, Favorites, Sets, Tags).</p>
-                <h4>Brush Actions (Right Panel / Mobile Bottom Bar)</h4>
-                <p>When brushes are selected:</p>
+                <button id="closeHelpModal" class="modal-close-button" aria-label="Close modal">×</button>
+                <h3>Welcome to Brush Commander!</h3>
+                <p>Your complete solution for managing, organizing, and understanding your Procreate brush library.</p>
+                <h4>Core Features</h4>
                 <ul>
-                    <li><strong>Single Brush:</strong> Edit its name, notes, and favorite status in the right panel (desktop). On mobile, the "Edit" button will appear.</li>
-                    <li><strong>Multiple Brushes:</strong> Manage common tags or create a new <code>.brushset</code> from your selection.</li>
+                    <li><strong>Inspect Brushes:</strong> Click the 🔍 icon on any brush card for a full-resolution preview. See the brush's core Shape and Grain, and discover its behavior (like Pressure and Tilt settings).</li>
+                    <li><strong>Organize with Tags:</strong> Select brushes and add custom tags like "INK" or "PENCIL" for powerful filtering.</li>
+                    <li><strong>Export .brushset Files:</strong> Select any combination of brushes—or filter a view—and click "Create .brushset" to export them as a ready-to-use Procreate file.</li>
                 </ul>
-                <h4>Tagging Power</h4>
-                <p>Tags are a powerful way to organize. Add multiple tags (comma-separated) to selected brushes. You can then filter by these tags in the sidebar to quickly find specific brush types (e.g., <code>INK</code>, <code>PENCIL</code>, <code>TEXTURE</code>).</p>
-                <h4>Creating Brush Sets (<code>.brushset</code> files)</h4>
-                <p>Select the brushes you want to package, then click "Create .brushset from Selected" (desktop panel) or the "Set" button (mobile action bar). This will generate a new <code>.brushset</code> file that you can download and import directly into Procreate or share.</p>
-                <h4>Deleting Brushes</h4>
-                <p>You can delete individual brushes using the trash icon on each card. To delete multiple selected brushes, use the "Delete Selected" button (on the desktop, this button is fixed at the bottom-right of the screen; on mobile, use the trash icon in the bottom action bar when items are selected).</p>
-                <h4>Backup & Safety Note</h4>
-                <p>Brush Commander Beta helps you manage and re-export your brushes. For the most comprehensive safety, it's always a good practice to keep your original <code>.brush</code> and <code>.brushset</code> files backed up externally (e.g., cloud storage like iCloud/Dropbox, or an external drive).</p>
-                <hr style="border-color: var(--border-color); margin: 25px 0;">
-                <div style="border: 2px solid red; padding: 10px; margin-top: 15px;">
+                <h4>The Ultimate Backup</h4>
+                <p>Brush Commander gives you a single, reliable backup file for your entire library.</p>
+                <ul>
+                    <li>Click <strong>Backup Library</strong> in the sidebar to save a `.brushvault` file. This contains everything. Keep it safe!</li>
+                    <li><strong>Restore Library</strong> will completely replace your current library with the backup file. This is perfect for moving to a new device or recovering from a problem.</li>
+                </ul>
+                <h4>Pro Tips</h4>
+                <ul>
+                    <li>You can import multiple <code>.brush</code> and <code>.brushset</code> files at once.</li>
+                    <li>On desktop, use the search bar to find brushes by name, set, or tag.</li>
+                    <li>In the Inspector, use your mouse wheel or pinch gestures to zoom, and the arrow keys to quickly compare brushes.</li>
+                </ul>
+                <div class="sidebar-backup-info" style="margin-top: 25px;">
                     <h4>Disclaimer & Important Notices</h4>
-                    <p><strong>PLEASE READ CAREFULLY. By using Brush Commander Beta, you agree to these terms.</strong></p>
-                    <p><strong>Beta Software:</strong> Brush Commander Beta is pre-release software and is currently undergoing testing. You acknowledge that it may contain bugs, errors, and inaccuracies, and may not function as smoothly or reliably as a fully released product. Use of the Beta version is at your own risk. We reserve the right to modify or discontinue the Beta program or the application at any time without notice.</p>
-                    <p><strong>Independence and No Affiliation:</strong> Brush Commander Beta is an independent, third-party application and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Savage Interactive Pty Ltd, the creators of Procreate®, or any of its subsidiaries or affiliates. The names Procreate® and Savage Interactive, as well as related names, marks, emblems, and images, are registered trademarks of their respective owners.</p>
-                    <p><strong>Purpose and Personal Use:</strong> Brush Commander Beta is designed to help users manage, organize, and create functional exports of Procreate® brushes that they have legally acquired or created themselves. The application operates entirely locally within the user's web browser. All imported brush files and data remain on the user's device and are not uploaded, collected, or transmitted to any external server by Brush Commander Beta.</p>
-                    <p><strong>Respect for Intellectual Property:</strong> Users are solely responsible for ensuring they have the legal rights to import, manage, and use any brush files with Brush Commander Beta. This includes respecting the terms of use and licenses of any brushes purchased or downloaded from third-party creators. Brush Commander Beta does not endorse or facilitate the piracy or unauthorized distribution of copyrighted brush materials. The tool is intended for personal, organizational use with legitimately owned assets.</p>
-                    <p><strong>Data Privacy (Local Storage):</strong> Brush Commander Beta does not collect, store remotely, or share any personal information or any of the brush files or brush metadata you import into the application. All processing and storage occur locally on your computer within your web browser's secure IndexedDB storage.</p>
-                    <p><strong>No Reverse Engineering:</strong> Brush Commander Beta interacts with <code>.brush</code> and <code>.brushset</code> file formats for the purpose of allowing users to manage and re-export their assets. It does not attempt to reverse engineer, modify, or interfere with the Procreate® application itself or its proprietary technologies in any unauthorized way.</p>
-                    <p><strong>Limitation of Liability:</strong> To the maximum extent permitted by applicable law, Brush Commander Beta is provided "as is" without warranties of any kind, either express or implied. The developers of Brush Commander Beta shall not be liable for any direct, indirect, incidental, special, consequential, or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data, or other intangible losses (even if advised of the possibility of such damages), resulting from the use or inability to use the application. You are solely responsible for backing up your Procreate brushes and related data externally.</p>
+                    <p style="font-style: italic; margin-bottom: 10px;">By using Brush Commander, you agree to these terms.</p>
+                    <ul style="font-size: 0.9em; margin: 0; padding-left: 18px;">
+                        <li><strong>Independent Tool:</strong> Brush Commander is a third-party application and is <strong>not</strong> affiliated, associated, or endorsed by Savage Interactive Pty Ltd, the creators of Procreate®.</li>
+                        <li><strong>Local & Private:</strong> All your brushes and data are stored <strong>100% locally</strong> on your device. Nothing is ever uploaded or transmitted to any server. Your library is your own.</li>
+                        <li><strong>Respect for IP:</strong> You are solely responsible for ensuring you have the legal right to use any brushes you import. This tool is for managing your legitimately owned assets. It is not a tool for piracy.</li>
+                        <li><strong>Use At Your Own Risk:</strong> While built with care, this application is provided "as is" without warranty. We are not liable for any data loss or other damages. <strong>Always maintain your own external backups of your original brush files.</strong></li>
+                    </ul>
                 </div>
             </div>
         </div>
+        <div id="inspector-overlay" class="inspector-overlay" style="display: none;">
+            <button id="inspector-close-btn" class="inspector-close-btn" aria-label="Close Inspector">×</button>
+            <div id="inspector-main-content" class="inspector-main-content">
+                <div id="inspector-preview-panel" class="inspector-panel preview-panel">
+                    <div id="inspector-preview-wrapper" class="inspector-preview-wrapper">
+                         <img id="inspector-main-image" src="" alt="Main brush preview">
+                    </div>
+                </div>
+                <div id="inspector-spec-panel" class="inspector-panel spec-panel">
+                    <h3 id="inspector-brush-name">Brush Name</h3>
+                    <div class="spec-section details-section">
+                        <h4>Details</h4>
+                        <ul id="inspector-details-list">
+                            <!-- <li id="inspector-author"><strong>By:</strong> <span></span></li> -->
+                            <li id="inspector-source"><strong>From:</strong> <span></span></li>
+                            <li id="inspector-added"><strong>Added:</strong> <span></span></li>
+                        </ul>
+                    </div>
+                    <div class="spec-section dna-section">
+                        <h4>DNA</h4>
+                        <div class="dna-previews">
+                            <div id="inspector-stroke-thumb-wrapper" class="dna-thumb-wrapper active" data-source-type="stroke">
+                                <span class="dna-placeholder">N/A</span>
+                                <img id="inspector-stroke-thumb" src="" alt="Stroke thumbnail">
+                                <label>Stroke</label>
+                            </div>
+                            <div id="inspector-shape-thumb-wrapper" class="dna-thumb-wrapper" data-source-type="shape">
+                                <span class="dna-placeholder">N/A</span>
+                                <img id="inspector-shape-thumb" src="" alt="Shape source">
+                                <label>Shape</label>
+                            </div>
+                            <div id="inspector-grain-thumb-wrapper" class="dna-thumb-wrapper" data-source-type="grain">
+                                 <span class="dna-placeholder">N/A</span>
+                                 <img id="inspector-grain-thumb" src="" alt="Grain source">
+                                 <label>Grain</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spec-section behavior-section">
+                        <h4>Behavior</h4>
+                        <ul id="inspector-behavior-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <button id="inspector-prev-btn" class="inspector-nav-btn prev-btn" aria-label="Previous Brush"><</button>
+            <button id="inspector-next-btn" class="inspector-nav-btn next-btn" aria-label="Next Brush">></button>
+        </div>
     </div>
 
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dexie-export-import@1.0.3/dist/dexie-export-import.min.js"></script>
-
-    <script src="js/bplistParserManual.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.6/StreamSaver.min.js"></script>
+    
+    <!-- App Scripts (CRITICAL LOAD ORDER) -->
     <script src="js/config.js"></script>
-    <script src="js/db.js"></script>
     <script src="js/domElements.js"></script>
-    <script src="js/ui.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/bplistParserManual.js"></script>
     <script src="js/fileHandlers.js"></script>
-    <script src="js/eventHandlers.js"></script>
     <script src="js/pwa.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/inspector.js"></script>
+    
+    <script src="js/ui/rendering.js"></script>
+    <script src="js/ui/panels.js"></script>
+    <script src="js/ui/mobileToggles.js"></script>
+    <script src="js/main.js"></script> 
+    
+    <script src="js/handlers/selectionHandlers.js"></script>
+    <script src="js/handlers/brushActionHandlers.js"></script>
+    <script src="js/handlers/navigationHandlers.js"></script>
+    <script src="js/handlers/dataHandlers.js"></script>
+    <script src="js/handlers/mobileActionHandlers.js"></script>
+    <script src="js/handlers/systemHandlers.js"></script>
 
+    <!-- Passcode Gate Logic -->
     <script>
-        // --- Simple Passcode Gate Logic ---
-        const APP_PASSCODE = "PrivateUser91$"; // <-- IMPORTANT: Replace this with your actual passcode!
+        const gateKey = "brushCommanderBetaAccessGranted_v1";
         const appWrapper = document.getElementById('appWrapper');
         const passcodeGate = document.getElementById('passcodeGate');
-        const passcodeEntry = document.getElementById('passcodeEntry');
-        const submitPasscode = document.getElementById('submitPasscode');
-        const passcodeError = document.getElementById('passcodeError');
 
-        function unlockApp() {
-            if (passcodeGate) passcodeGate.style.display = 'none';
-            if (appWrapper) {
-                appWrapper.style.display = 'flex';
-                appWrapper.style.flexDirection = 'column';
-                appWrapper.style.width = '100%';
-                appWrapper.style.height = '100%';
-            }
-        }
-
-        if (localStorage.getItem('brushCommanderBetaAccessGranted_v1') === 'true') {
-            unlockApp();
-        } else {
-            if (passcodeGate) passcodeGate.style.display = 'flex';
-            if (appWrapper) appWrapper.style.display = 'none';
-            if (submitPasscode) {
-                submitPasscode.onclick = function() {
-                    if (passcodeEntry && passcodeEntry.value === APP_PASSCODE) {
-                        localStorage.setItem('brushCommanderBetaAccessGranted_v1', 'true');
-                        unlockApp();
-                        if(passcodeError) passcodeError.style.display = 'none';
-                    } else {
-                        if (passcodeError) passcodeError.style.display = 'block';
-                    }
-                };
-            }
-            if (passcodeEntry) {
-                passcodeEntry.onkeypress = function(e) {
-                    if (e.key === 'Enter') {
-                        if (submitPasscode) submitPasscode.click();
-                    }
-                }
-            }
+        function unlockApp() { if (passcodeGate) passcodeGate.style.display = 'none'; if (appWrapper) appWrapper.style.display = 'flex'; }
+        if (localStorage.getItem(gateKey) === 'true') { unlockApp(); }
+        else {
+            const passcodeEntry = document.getElementById('passcodeEntry'), submitPasscode = document.getElementById('submitPasscode'), passcodeError = document.getElementById('passcodeError'), myPasscode = "PrivateUser91$";
+            if (passcodeGate) passcodeGate.style.display = 'flex'; if (appWrapper) appWrapper.style.display = 'none';
+            const enterApp = () => { if (passcodeEntry && passcodeEntry.value === myPasscode) { localStorage.setItem(gateKey, 'true'); unlockApp(); } else if (passcodeError) { passcodeError.style.display = 'block'; } };
+            if (submitPasscode) submitPasscode.onclick = enterApp; if (passcodeEntry) passcodeEntry.onkeypress = (e) => { if (e.key === 'Enter') enterApp(); };
         }
     </script>
 </body>
